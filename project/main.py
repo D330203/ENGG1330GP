@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import os
 import shutil
 import sys
@@ -12,7 +11,7 @@ mapdir = Path(__file__).resolve().parent / "maps"
 Titlepagedir = Path(__file__).resolve().parent / "Titlepage" / "titlepage.txt"
 
 puz = [
-    ("""To advance to the next floor, you must choose ONE correct door\n 
+    ("""To advance to the next floor, you must choose ONE correct choice\n 
     RULE: Among the three dead wraiths, exactly TWO sentences are TRUE, ONE sentence is FALSE.\n
     Wraith 1: The correct door either A, B or E.\n
     Wraith 2: The correct door is not B.\n
@@ -33,7 +32,7 @@ puz = [
 ]
 floors = ()
 
-def titlepage() -> None:
+def titlepage():
     clear()
     print(Titlepagedir.read_text(encoding="utf-8"))
     print("Press any key to start, or Q to quit.")
@@ -44,7 +43,7 @@ def titlepage() -> None:
         else:
             break
 
-def floorloading(floor: int) -> tuple[str, ...]:
+def floorloading(floor):
     path = mapdir / f"floor_{floor + 1}.txt"
     rows = tuple(path.read_text(encoding="utf-8").splitlines())
     if not rows or not 3 <= len(rows) <= 17:
@@ -53,7 +52,7 @@ def floorloading(floor: int) -> tuple[str, ...]:
     return rows
 
 
-def readkey(prompt: str) -> str:
+def readkey(prompt):
     sys.stdout.write(prompt)
     sys.stdout.flush()
     if os.name == "nt":
@@ -73,11 +72,11 @@ def readkey(prompt: str) -> str:
         termios.tcsetattr(fd, termios.TCSADRAIN, previous)
 
 
-def clear() -> None:
+def clear():
     sys.stdout.write("\033[2J\033[H")
 
 
-def termsizecheck() -> bool:
+def termsizecheck():
     size = shutil.get_terminal_size((width, height))
     if size.columns >= width and size.lines >= height:
         return False
@@ -93,7 +92,7 @@ def termsizecheck() -> bool:
     return True
 
 
-def tilecheck(rows: tuple[str, ...], tile: str) -> tuple[int, int]:
+def tilecheck(rows, tile):
     for y, row in enumerate(rows):
         for x, char in enumerate(row):
             if char == tile:
@@ -101,7 +100,7 @@ def tilecheck(rows: tuple[str, ...], tile: str) -> tuple[int, int]:
     raise ValueError(f"Missing tile: {tile}")
 
 
-def navigation(rows: tuple[str, ...], start: tuple[int, int], goal: tuple[int, int]) -> tuple[int, int]:
+def navigation(rows, start, goal):
     queue = deque([(start, None)])
     visited = {start}
     directions = ((0, -1), (1, 0), (0, 1), (-1, 0))
@@ -119,7 +118,7 @@ def navigation(rows: tuple[str, ...], start: tuple[int, int], goal: tuple[int, i
     return start
 
 
-def render(room, floor, player, guard, solved, message) -> None:
+def render(room, floor, player, guard, solved, message):
     rows = [list(row) for row in room]
     px, py = player
     gx, gy = guard
@@ -128,41 +127,41 @@ def render(room, floor, player, guard, solved, message) -> None:
 
     clear()
     print(f"FIVE FLOORS BELOW                         FLOOR {floor + 1}/3")
-    print("# = wall   @ = you   G = guard   P = puzzle   E = exit")   
+    print("# = wall   @ = player   G = guard   P = puzzle   E = exit")   
     for y, row in enumerate(rows):
-        visible_row = []
+        seerow = []
         for x, char in enumerate(row):
             if abs(x - px) <= 2 and abs(y - py) <= 2:
-                visible_row.append(char)
+                seerow.append(char)
             else:
-                visible_row.append("■")
+                seerow.append("■")
                 
-        print("".join(visible_row))
+        print("".join(seerow))
     print(message)
 
-def answerchoose(floor: int) -> bool:
-    clue, options, answer = puz[floor]
+def answerchoose(floor) -> bool:
+    clue, opt, ans = puz[floor]
     clear()
     print(f"FLOOR {floor + 1} PANEL")
     print(clue)
     print()
-    for number, option in enumerate(options, 1):
+    for number, option in enumerate(opt, 1):
         print(f"{number}. {option}")
     if floor == 2:
         print("are you ready to pull the lever and exit?", end="", flush=True)
     else:
         print("Choose 1, 2, 3, 4 or 5: ", end="", flush=True)
-    return readkey("") == answer
+    return readkey("") == ans
 
 
-def play() -> None:
+def main():
     floor = 0
     solved: set[int] = set()
-    message = "Your goal is to reach the panel and try to solve it, then use the lift. Make it to the roof and escape!"
-    moves = {"w": (0, -1), "a": (-1, 0), "s": (0, 1), "d": (1, 0)}
+    message = "Your goal is to reach the panel and try to solve it, then use the lift and escape!"
+    mov = {"w": (0, -1), "a": (-1, 0), "s": (0, 1), "d": (1, 0)}
     titlepage()
     while True:
-        if termsizecheck():
+        if termsizecheck() == True:
             continue
         room = floorloading(floor)
         player = tilecheck(room, "@")
@@ -170,17 +169,17 @@ def play() -> None:
 
         while True:
             render(room, floor, player, guard, solved, message)
-            action = readkey("")
-            if action == "q":
+            act = readkey("")
+            if act == "q":
                 print("\nThanks for playing.")
                 return
-            if action in moves:
-                dx, dy = moves[action]
-                target = player[0] + dx, player[1] + dy
-                if room[target[1]][target[0]] == "#":
+            if act in mov:
+                dx, dy = mov[act]
+                goplace = player[0] + dx, player[1] + dy
+                if room[goplace[1]][goplace[0]] == "#":
                     message = "A wall blocks the way. Try another direction."
                     continue
-                player = target
+                player = goplace
                 guard = navigation(room, guard, player)
                 if guard == player:
                     floor, solved = floor, set()
@@ -188,7 +187,7 @@ def play() -> None:
                     break
                 message = "The guard moves closer..." if guard != tilecheck(room, "G") else "Keep moving."
                 continue
-            if action == "e":
+            if act == "e":
                 if player == tilecheck(room, "P"):
                     if floor in solved:
                         message = "This panel is already solved. Go to E."
@@ -229,17 +228,6 @@ def play() -> None:
                     message = "Nothing to use here. Move to P or E."
                 continue
             message = "Use W, A, S, D to move; E to interact; Q to quit."
-
-
-def main() -> None:
-    try:
-        play()
-    except (OSError, ValueError) as exc:
-        clear()
-        print(f"Map error: {str(exc)[:68]}")
-        print("Check that maps/floor_1.txt through floor_5.txt are included.")
-    except KeyboardInterrupt:
-        print("\nGame stopped.")
 
 if __name__ == "__main__":
     main()
