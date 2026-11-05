@@ -8,7 +8,7 @@ from collections import deque
 from pathlib import Path
 
 width, height = 80, 24
-mapdirectory = Path(__file__).resolve().parent / "maps"
+mapdir = Path(__file__).resolve().parent / "maps"
 Titlepagedir = Path(__file__).resolve().parent / "Titlepage" / "titlepage.txt"
 
 puz = [
@@ -27,11 +27,11 @@ puz = [
     Clue 4: 4 8 2 7 | None of these digits are in the secret code.\n
     Work out the 4-digit secret code!"""
      , ("5394", "5193", "5160", "0294", "5196"), "3"),
-    ("A lever that controls the gate of exit appears in front of you ", ("yes", "no"), "1"),
-    ("A lock asks: how many sides has a hexagon?", ("5", "6", "8"), "2"),
-    ("The exit asks: what is 5 squared?", ("10", "20", "25"), "3"),
+    (),
+    (),
+    (),
 ]
-floors = ("Lobby", "Records", "Laboratory", "Control", "Roof access")
+floors = ()
 
 def titlepage() -> None:
     clear()
@@ -45,24 +45,11 @@ def titlepage() -> None:
             break
 
 def floorloading(floor: int) -> tuple[str, ...]:
-    path = mapdirectory / f"floor_{floor + 1}.txt"
+    path = mapdir / f"floor_{floor + 1}.txt"
     rows = tuple(path.read_text(encoding="utf-8").splitlines())
     if not rows or not 3 <= len(rows) <= 17:
         raise ValueError(f"{path.name}: map height must be 3 to 17 rows")
-    width = len(rows[0])
-    """
-    if not 3 <= width <= 78 or any(len(row) != width for row in rows):
-        raise ValueError(f"{path.name}: rows must have the same width (3 to 78)")
-    if any(char not in "# @GPE" for row in rows for char in row):
-        raise ValueError(f"{path.name}: unsupported map character")
-    for marker in "@GPE":
-        if sum(row.count(marker) for row in rows) != 1:
-            raise ValueError(f"{path.name}: expected exactly one {marker}")
-    if any(char != "#" for char in rows[0] + rows[-1]):
-        raise ValueError(f"{path.name}: top and bottom edges must be walls")
-    if any(row[0] != "#" or row[-1] != "#" for row in rows):
-        raise ValueError(f"{path.name}: left and right edges must be walls")
-    """    
+    width = len(rows[0])  
     return rows
 
 
@@ -132,7 +119,7 @@ def navigation(rows: tuple[str, ...], start: tuple[int, int], goal: tuple[int, i
     return start
 
 
-def render(room: tuple[str, ...], floor: int, player: tuple[int, int], guard: tuple[int, int], solved: set[int], message: str) -> None:
+def render(room, floor, player, guard, solved, message) -> None:
     rows = [list(row) for row in room]
     px, py = player
     gx, gy = guard
@@ -141,7 +128,7 @@ def render(room: tuple[str, ...], floor: int, player: tuple[int, int], guard: tu
 
     clear()
     print(f"FIVE FLOORS BELOW                         FLOOR {floor + 1}/3")
-    print("# = wall   @ = you   G = patrol   P = puzzle   E = exit")   
+    print("# = wall   @ = you   G = guard   P = puzzle   E = exit")   
     for y, row in enumerate(rows):
         visible_row = []
         for x, char in enumerate(row):
@@ -171,7 +158,7 @@ def answerchoose(floor: int) -> bool:
 def play() -> None:
     floor = 0
     solved: set[int] = set()
-    message = "Reach the panel, solve it, then use the lift. Make it to the roof!"
+    message = "Your goal is to reach the panel and try to solve it, then use the lift. Make it to the roof and escape!"
     moves = {"w": (0, -1), "a": (-1, 0), "s": (0, 1), "d": (1, 0)}
     titlepage()
     while True:
@@ -191,13 +178,13 @@ def play() -> None:
                 dx, dy = moves[action]
                 target = player[0] + dx, player[1] + dy
                 if room[target[1]][target[0]] == "#":
-                    message = "A wall blocks the way. That did not use a turn."
+                    message = "A wall blocks the way. Try another direction."
                     continue
                 player = target
                 guard = navigation(room, guard, player)
                 if guard == player:
                     floor, solved = floor, set()
-                    message = "The guard caught you. You are sent back to the starting point; all panels reset."
+                    message = "The guard caught you. You are sent back to the starting point, all panels reset."
                     break
                 message = "The guard moves closer..." if guard != tilecheck(room, "G") else "Keep moving."
                 continue
@@ -210,11 +197,11 @@ def play() -> None:
                         solved.add(floor)
                         message = "Correct. The lift unlocks; the next floor's panel is linked to this one."
                     else:
-                        message = "Wrong answer. The guard gets a turn."
+                        message = "Answer wrong"
                         guard = navigation(room, guard, player)
                         if guard == player:
                             floor, solved = floor, set()
-                            message = "Caught at the panel. Back to the starting point; all panels reset."
+                            message = "You are caught at the panel. Back to the starting point, all panels reset."
                             break
                     continue
                 if player == tilecheck(room, "E"):
