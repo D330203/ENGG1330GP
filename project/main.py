@@ -26,18 +26,37 @@ puz = [
     Clue 4: 4 8 2 7 | None of these digits are in the secret code.\n
     Work out the 4-digit secret code!"""
      , ("5394", "5193", "5160", "0294", "5196"), "3"),
-    (),
+    ("Are you ready to pull the lever and escape?",("YES", "NO"), "1"),
     (),
     (),
 ]
 floors = ()
+
+openingstory = [("this is line1"),
+                ("this is line2"),
+                ("this is line3")
+]
+
+def storyteling():
+    for line in openingstory:
+        if termsizecheck() == True:
+            clear()
+        else:
+            print(line)
+            time.sleep(1.0)
+    print("\nPress any key to continue, or Q to quit.")
+    action = readkeyboard("")
+    if action == "q":
+        sys.exit() 
+    else:
+        pass
 
 def titlepage():
     clear()
     print(Titlepagedir.read_text(encoding="utf-8"))
     print("Press any key to start, or Q to quit.")
     while True:
-        action = readkey("")
+        action = readkeyboard("")
         if action == "q":
             sys.exit()
         else:
@@ -52,7 +71,7 @@ def floorloading(floor):
     return rows
 
 
-def readkey(prompt):
+def readkeyboard(prompt):
     sys.stdout.write(prompt)
     sys.stdout.flush()
     if os.name == "nt":
@@ -151,7 +170,7 @@ def answerchoose(floor) -> bool:
         print("are you ready to pull the lever and exit?", end="", flush=True)
     else:
         print("Choose 1, 2, 3, 4 or 5: ", end="", flush=True)
-    return readkey("") == ans
+    return readkeyboard("") == ans
 
 
 def main():
@@ -160,6 +179,8 @@ def main():
     message = "Your goal is to reach the panel and try to solve it, then use the lift and escape!"
     mov = {"w": (0, -1), "a": (-1, 0), "s": (0, 1), "d": (1, 0)}
     titlepage()
+    clear()
+    storyteling()
     while True:
         if termsizecheck() == True:
             continue
@@ -169,7 +190,7 @@ def main():
 
         while True:
             render(room, floor, player, guard, solved, message)
-            act = readkey("")
+            act = readkeyboard("")
             if act == "q":
                 print("\nThanks for playing.")
                 return
@@ -212,7 +233,7 @@ def main():
                         print("You solved all five connected panels and reached the roof.")
                         print("Press R to restart, or Q to quit.")
                         while True:
-                            again = readkey("")
+                            again = readkeyboard("")
                             if again == "r":
                                 floor, solved = floor, set()
                                 message = "A new run begins in the lobby."
