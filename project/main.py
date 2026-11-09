@@ -9,33 +9,91 @@ from pathlib import Path
 width, height = 80, 24
 mapdir = Path(__file__).resolve().parent / "maps"
 Titlepagedir = Path(__file__).resolve().parent / "Titlepage" / "titlepage.txt"
-
+picpuzdir = Path(__file__).resolve().parent / "picturepuz"
 puz = [
-    ("""To advance to the next floor, you must choose ONE correct choice\n 
-    RULE: Among the three dead wraiths, exactly TWO sentences are TRUE, ONE sentence is FALSE.\n
-    Wraith 1: The correct door either A, B or E.\n
-    Wraith 2: The correct door is not B.\n
-    Wraith 3: The correct door is either B or C.\n
-    Use logic deduction to find the correct door. Choose wisely!"""
-     , ("A", "B", "C", "D", "E"), "2"),
-    ("""You stand before a 4-digit combination lock.\n
-    There are four notes left behind by a previous prisoner to help you crack it.\n
-    Clue 1: 0 2 5 9 | One digit is correct and in the correct position.\n
-    Clue 2: 5 1 9 3 | Two digits are correct, one of them is in the correct position.\n
-    Clue 3: 9 4 1 6 | Two digits are correct, one of them is in the correct position.\n
-    Clue 4: 4 8 2 7 | None of these digits are in the secret code.\n
-    Work out the 4-digit secret code!"""
-     , ("5394", "5193", "5160", "0294", "5196"), "3"),
-    ("Are you ready to pull the lever and escape?",("YES", "NO"), "1"),
-    (),
-    (),
+    ("""THE FOUR VOICES
+
+Four voices speak through the building's loudspeaker.
+A warning is taped to the control panel:
+
+"Exactly ONE statement is true.
+There is only ONE safe circuit."
+
+Voice 1: The safe circuit is A or B.
+Voice 2: The safe circuit is C or D.
+Voice 3: The safe circuit is NOT C.
+Voice 4: The safe circuit is E.
+
+Which circuit should you activate?""", ("Circuit A", "Circuit B", "Circuit C", "Circuit D", "Circuit E"), "3"),
+
+    ("""THE ONE-WAY ESCALATOR
+
+A note reads: "To go down, first go up."
+
+This is a model shown on the panel, not the maze.
+Start on 3F. Reach the exit on 0F.
+U: Take the escalator UP one floor.
+D: Take the stairs DOWN two floors.
+D is available ONLY FROM an EVEN floor.
+Only 0F to 4F exist. Never leave this range.
+The route ends when you reach 0F.
+
+Which route reaches the exit?""", ("U - U - D", "D - U - D", "U - D - D", "U - D - U","U - U - U"), "3"),
+    (("""THE MOONLIT FOUNTAIN
+
+Read the digits from the SHORTEST column to the TALLEST.
+Each ■ represents one unit of height.
+
+         ■
+         ■
+         ■       ■
+ ■       ■       ■
+ ■       ■       ■
+LEFT   MIDDLE  RIGHT
+ 7       2       4
+
+What is the three-digit code?"""),("724", "247", "427", "742","274"), "4")
 ]
 floors = ()
 
-openingstory = [("this is line1"),
-                ("this is line2"),
-                ("this is line3")
+openingstory = [("23:59. You stayed late at HKU to finish a project."),
+                ("Inside the Chong Yuet Ming Building, the lift stops."),
+                ("Its doors open onto an unfamiliar corridor."),
+                (""),
+                ("Your phone has no signal. Yet a message arrives:"),
+                ("[UNKNOWN NUMBER]"),
+                ("Do not follow the person in uniform."),
+                ("Solve the puzzles on three floors, Unlock the courtyard door. I can help you escape."),
+                (""),
+                ("Footsteps echo behind you."),
+                ("A figure stands at the end of the corridor."),
+                ("The lights go out."),
+                ("Only your phone screen remains.")
+
 ]
+endingstory = [("You push the courtyard door open."),
+                (""),
+                ("""Cold night air touches your face.
+The campus looks familiar again."""),
+                ("Your phone reconnects."),
+                (""),
+                ("Behind you, the door clicks out"),
+                ("YOU ESCAPED"),
+                (""),
+                (""),
+                (""),
+                (""),
+                ("Your phone vibrates."),
+                ("[UNKNOWN NUMBER]"),
+                ("Thank you."),
+                ("I finally got out, too."),
+                ("You turn around."),
+                (""),
+                ("There is nobody here"),
+                ("GAME COMPLETED"),
+
+]
+
 
 def storyteling():
     for line in openingstory:
@@ -45,6 +103,20 @@ def storyteling():
             print(line)
             time.sleep(1.0)
     print("\nPress any key to continue, or Q to quit.")
+    action = readkeyboard("")
+    if action == "q":
+        sys.exit() 
+    else:
+        pass
+
+def ending():
+    for line in endingstory:
+        if termsizecheck() == True:
+            clear()
+        else:
+            print(line)
+            time.sleep(1.0)
+    print("\nPress R to restart, or Q to quit.")
     action = readkeyboard("")
     if action == "q":
         sys.exit() 
@@ -147,6 +219,7 @@ def render(room, floor, player, guard, solved, message):
     clear()
     print(f"FIVE FLOORS BELOW                         FLOOR {floor + 1}/3")
     print("# = wall   @ = player   G = guard   P = puzzle   E = exit")   
+    #print("# = wall   @ = player   G = guard   P = puzzle   U = next floor  D = previous floor  E = exit")
     for y, row in enumerate(rows):
         seerow = []
         for x, char in enumerate(row):
@@ -229,8 +302,8 @@ def main():
                         message = "The lift is locked. Solve this floor's panel first."
                     elif floor == 2:
                         clear()
-                        print("YOU ESCAPED!")
-                        print("You solved all five connected panels and reached the roof.")
+                        ending()
+                        
                         print("Press R to restart, or Q to quit.")
                         while True:
                             again = readkeyboard("")
