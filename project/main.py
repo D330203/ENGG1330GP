@@ -10,6 +10,8 @@ width, height = 80, 24
 mapdir = Path(__file__).resolve().parent / "maps"
 Titlepagedir = Path(__file__).resolve().parent / "Titlepage" / "titlepage.txt"
 picpuzdir = Path(__file__).resolve().parent / "picturepuz"
+loadingdir = Path(__file__).resolve().parent / "loadingscreen" / "loading1.txt"
+
 puz = [
     ("""THE FOUR VOICES
 
@@ -18,7 +20,7 @@ A warning is taped to the control panel:
 
 "Exactly ONE statement is true.
 There is only ONE safe circuit."
-
+    
 Voice 1: The safe circuit is A or B.
 Voice 2: The safe circuit is C or D.
 Voice 3: The safe circuit is NOT C.
@@ -62,8 +64,8 @@ openingstory = [("23:59. You stayed late at HKU to finish a project."),
                 (""),
                 ("Your phone has no signal. Yet a message arrives:"),
                 ("[UNKNOWN NUMBER]"),
-                ("Do not follow the person in uniform."),
-                ("Solve the puzzles on three floors, Unlock the courtyard door. I can help you escape."),
+                ("'Do not follow the person in uniform.'"),
+                ("'Solve the puzzles on three floors, Unlock the courtyard door. I can help you escape.'"),
                 (""),
                 ("Footsteps echo behind you."),
                 ("A figure stands at the end of the corridor."),
@@ -79,14 +81,12 @@ The campus looks familiar again."""),
                 (""),
                 ("Behind you, the door clicks out"),
                 ("YOU ESCAPED"),
-                (""),
-                (""),
-                (""),
-                (""),
+]
+endingstory2 = [
                 ("Your phone vibrates."),
                 ("[UNKNOWN NUMBER]"),
-                ("Thank you."),
-                ("I finally got out, too."),
+                ("'Thank you.'"),
+                ("'I finally got out, too.'"),
                 ("You turn around."),
                 (""),
                 ("There is nobody here"),
@@ -94,6 +94,14 @@ The campus looks familiar again."""),
 
 ]
 
+def blackscreen(s):
+    print("\033[48;2;0;0;0m\033[?25l", end="")
+    clear()
+    sys.stdout.flush()
+    try:
+        time.sleep(s)
+    finally:
+        print("\033[0m\033[?25h", end="", flush=True)
 
 def storyteling():
     for line in openingstory:
@@ -109,8 +117,25 @@ def storyteling():
     else:
         pass
 
+def showloadingscreen():
+    with open(loadingdir, "r") as f:
+        loading_lines = f.readlines()
+    for line in loading_lines:
+        if termsizecheck() == True:
+            clear()
+        else:
+            print(line, end="")
+            time.sleep(0.08)
+
 def ending():
     for line in endingstory:
+        if termsizecheck() == True:
+            clear()
+        else:
+            print(line)
+            time.sleep(1.0)
+    blackscreen(3.0)
+    for line in endingstory2:
         if termsizecheck() == True:
             clear()
         else:
@@ -217,7 +242,7 @@ def render(room, floor, player, guard, solved, message):
     rows[py][px] = "@"
 
     clear()
-    print(f"FIVE FLOORS BELOW                         FLOOR {floor + 1}/3")
+    print(f"THREE FLOORS IN TOTAL | FLOOR {floor + 1}/3 | Press E to interact with P or E")
     print("# = wall   @ = player   G = guard   P = puzzle   E = exit")   
     #print("# = wall   @ = player   G = guard   P = puzzle   U = next floor  D = previous floor  E = exit")
     for y, row in enumerate(rows):
@@ -239,21 +264,22 @@ def answerchoose(floor) -> bool:
     print()
     for number, option in enumerate(opt, 1):
         print(f"{number}. {option}")
-    if floor == 2:
-        print("are you ready to pull the lever and exit?", end="", flush=True)
-    else:
-        print("Choose 1, 2, 3, 4 or 5: ", end="", flush=True)
+    print("Choose 1, 2, 3, 4 or 5: ", end="", flush=True)
     return readkeyboard("") == ans
 
 
 def main():
+    
     floor = 0
-    solved: set[int] = set()
-    message = "Your goal is to reach the panel and try to solve it, then use the lift and escape!"
+    solved = set()
+    message = "Your goal is to reach the panel and try to solve it, use the lift and escape!"
     mov = {"w": (0, -1), "a": (-1, 0), "s": (0, 1), "d": (1, 0)}
     titlepage()
     clear()
     storyteling()
+    blackscreen(1.0)
+    showloadingscreen()
+
     while True:
         if termsizecheck() == True:
             continue
