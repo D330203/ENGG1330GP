@@ -1,7 +1,7 @@
 Run command in Project_docker terminal: python3 project/main.py
 ENGG1330 Subclass L, group 9
 Container version: engg1330-project:2026-v03
-Game name:The Escaper
+Game name: CYM Escaper
 
 Game purpose: the player "@" needs to pass through 3 levels of maze with avoiding the guard represented by notation "G", for each level of the maze, the player needs to find and reach the control panel "P", solve the puzzle before they reach the exit "E" and enters the next floor. The game ends when player reaches th exit of the third floor.
 
@@ -11,8 +11,8 @@ test & limitations: (Solved already): when the guard and the player enters the c
 A new "if" detection is added to deal with the condition above: as for the control panel: the player will be sent back to starting point, for exit, play can go to the next floor.
 
 Contributions:
-CHENG_JINGXING: Programming/ map designing
-LI_KEXIN: Trailer video under 5 mins/ Story writing
-MA_HEII: Puzzle/ Demo
+CHENG_JINGXING: Programming/ map designing / Demo video
+LI_KEXIN: Trailer video/ Story writing / Demo video / Puzzle designing
+MA_HEII: Gameplay designing 
 
 

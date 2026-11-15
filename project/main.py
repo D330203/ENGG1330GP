@@ -162,8 +162,6 @@ def titlepage():
 def floorloading(floor):
     path = mapdir / f"floor_{floor + 1}.txt"
     rows = tuple(path.read_text(encoding="utf-8").splitlines())
-    if not rows or not 3 <= len(rows) <= 17:
-        raise ValueError(f"{path.name}: map height must be 3 to 17 rows")
     width = len(rows[0])  
     return rows
 
@@ -214,6 +212,7 @@ def tilecheck(rows, tile):
             if char == tile:
                 return x, y
     raise ValueError(f"Missing tile: {tile}")
+
 
 
 def navigation(rows, start, goal):
