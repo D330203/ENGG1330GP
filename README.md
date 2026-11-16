@@ -11,8 +11,8 @@ test & limitations: (Solved already): when the guard and the player enters the c
 A new "if" detection is added to deal with the condition above: as for the control panel: the player will be sent back to starting point, for exit, play can go to the next floor.
 
 Contributions:
-CHENG_JINGXING: Programming/ map designing / Demo video
-LI_KEXIN: Trailer video/ Story writing / Demo video / Puzzle designing
-MA_HEII: Gameplay designing 
+CHENG_JINGXING: Programming/ map designing
+LI_KEXIN: Trailer video/ Story writing / Puzzle designing
+MA_HEII: Gameplay designing / Demo video
 
 
