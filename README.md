@@ -3,6 +3,11 @@ ENGG1330 Subclass L, group 9
 Container version: engg1330-project:2026-v03
 Game name: CYM Escaper
 
+demo link: https://drive.google.com/file/d/1lFZerLdVJLOry6AxtZ5UeRvEcE7BYWRF/view?usp=drivesdk
+
+trailer link: https://canva.link/iuuepkf75jcsypt
+
+
 Game purpose: the player "@" needs to pass through 3 levels of maze with avoiding the guard represented by notation "G", for each level of the maze, the player needs to find and reach the control panel "P", solve the puzzle before they reach the exit "E" and enters the next floor. The game ends when player reaches th exit of the third floor.
 
 Rules: Use WASD for moving up, left, down and right respectively. Press E to interact with control panel "P" or exit "E". the guard is represented by "G". 
